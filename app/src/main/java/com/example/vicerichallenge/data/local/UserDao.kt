@@ -10,8 +10,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDao {
 
-    @Query("SELECT * FROM users")
-    fun getAllUsers(): Flow<List<UserEntity>>
+    @Query("SELECT * FROM users ORDER BY id ASC LIMIT :limit OFFSET :offset")
+    fun getAllUsers(offset: Int, limit: Int): Flow<List<UserEntity>>
+
+    @Query("SELECT COUNT(*) FROM users")
+    fun getUsersCount(): Flow<Int>
 
     @Query("SELECT * FROM users WHERE name LIKE '%' || :query || '%' OR email LIKE '%' || :query || '%'")
     fun searchUsers(query: String): Flow<List<UserEntity>>

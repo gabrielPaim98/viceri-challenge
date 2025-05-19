@@ -45,18 +45,20 @@ fun UserListScreen(
                 LoadingView()
             } else if (state.errorMessage != null && state.errorMessage!!.isNotEmpty()) {
                 ErrorView(
-                        message = state.errorMessage!!,
-                        onRetry = { viewModel.fetchUsers(false) }
-                    )
+                    message = state.errorMessage!!,
+                    onRetry = { viewModel.fetchUsers(false) }
+                )
             } else {
                 UserList(
-                        users = state.users,
-                        isRefreshing = state.isLoading,
-                        onRefresh = viewModel::refresh ,
-                        onUserClick = {
-                            //todo: navigate to user details
-                        }
-                    )
+                    users = state.users,
+                    isRefreshing = state.isLoading,
+                    onRefresh = viewModel::refresh,
+                    onLoadMoreClick = viewModel::loadMoreUsers,
+                    endReached = state.endReached,
+                    onUserClick = {
+                        //todo: navigate to user details
+                    }
+                )
             }
         }
     }

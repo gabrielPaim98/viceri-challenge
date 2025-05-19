@@ -1,5 +1,6 @@
 package com.example.vicerichallenge.data.repository
 
+import com.example.vicerichallenge.core.util.PagedResult
 import com.example.vicerichallenge.core.util.Resource
 import com.example.vicerichallenge.data.local.UserDao
 import com.example.vicerichallenge.data.mappers.toDomain
@@ -10,6 +11,7 @@ import com.example.vicerichallenge.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
@@ -18,7 +20,7 @@ class UserRepositoryImpl(
     private val dao: UserDao
 ) : UserRepository {
 
-    override fun getUsers(forceRefresh: Boolean, currentPage: Int, pageSize: Int): Flow<Resource<List<User>>> = flow {
+    override fun getUsers(forceRefresh: Boolean, currentPage: Int, pageSize: Int): Flow<Resource<PagedResult<User>>> = flow {
         emit(Resource.Loading())
 
         if (forceRefresh) {
@@ -33,9 +35,17 @@ class UserRepositoryImpl(
             }
         }
 
-        val users = dao.getAllUsers().map { list -> list.map { it.toDomain() } }
+        val usersCount = dao.getUsersCount().first();
 
-        emitAll(users.map { Resource.Success(it) })
+        val users = dao.getAllUsers(
+            offset = (currentPage - 1) * pageSize,
+            limit = pageSize
+        ).first().map {  it.toDomain() }
+
+        emit(Resource.Success(PagedResult(
+            items = users,
+            totalItems = usersCount
+        )))
     }.catch { e ->
         emit(Resource.Error(e.localizedMessage ?: "Unexpected error"))
     }

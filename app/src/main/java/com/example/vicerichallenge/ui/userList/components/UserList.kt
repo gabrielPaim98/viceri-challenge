@@ -28,8 +28,10 @@ import com.example.vicerichallenge.domain.model.User
 fun UserList(
     users: List<User>,
     onUserClick: (Int) -> Unit,
+    onLoadMoreClick: () -> Unit,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
+    endReached: Boolean,
     modifier: Modifier = Modifier,
 ) {
     PullToRefreshBox(
@@ -47,7 +49,10 @@ fun UserList(
                     HorizontalDivider()
                 }
             }
-            Button(onClick = {}) { Text("Carregar Mais") }
+            if (endReached.not())
+                Button(onClick = {
+                    onLoadMoreClick()
+                }) { Text("Carregar Mais") }
         }
     }
 }
