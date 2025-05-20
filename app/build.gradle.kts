@@ -79,4 +79,9 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.kotlinx.metadata.jvm)
+
+    // Tests
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
