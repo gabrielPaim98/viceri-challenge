@@ -40,10 +40,12 @@ fun UserListScreen(
     val state by viewModel.state.collectAsState()
     var query by remember { mutableStateOf(TextFieldValue("")) }
 
-    LaunchedEffect(query) {
-        snapshotFlow { query }.debounce(300).collectLatest {
-            viewModel.search(it.text)
-        }
+    LaunchedEffect(Unit) {
+        snapshotFlow { query.text }
+            .debounce(300)
+            .collectLatest { text ->
+                viewModel.search(text)
+            }
     }
 
     Scaffold(
@@ -76,7 +78,7 @@ fun UserListScreen(
             } else {
                 UserList(
                     users = state.users,
-                    isRefreshing = state.isLoading,
+                    isRefreshing = state.isRefreshing,
                     onRefresh = viewModel::refresh,
                     onLoadMoreClick = viewModel::loadMoreUsers,
                     endReached = state.endReached,
