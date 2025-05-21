@@ -34,7 +34,8 @@ import kotlinx.coroutines.flow.debounce
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun UserListScreen(
-    viewModel: UserListViewModel = hiltViewModel()
+    viewModel: UserListViewModel = hiltViewModel(),
+    onUserClick: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var query by remember { mutableStateOf(TextFieldValue("")) }
@@ -79,9 +80,7 @@ fun UserListScreen(
                     onRefresh = viewModel::refresh,
                     onLoadMoreClick = viewModel::loadMoreUsers,
                     endReached = state.endReached,
-                    onUserClick = {
-                        //todo: navigate to user details
-                    },
+                    onUserClick = onUserClick,
                     modifier = Modifier.weight(1f)
                 )
             }
