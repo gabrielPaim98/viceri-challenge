@@ -26,7 +26,7 @@ fun AppNavigation() {
             arguments = listOf(navArgument("userId") { type = NavType.IntType })
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getInt("userId")!!
-            UserDetailsScreen(userId)
+            UserDetailsScreen(userId, navController)
         }
     }
 }
