@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -15,40 +16,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.vicerichallenge.domain.model.Address
-import com.example.vicerichallenge.domain.model.Company
-import com.example.vicerichallenge.domain.model.Geo
-import com.example.vicerichallenge.domain.model.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserDetailsScreen(
-    userId: Int,
-    navController: NavController
+    navController: NavController,
+    viewModel: UserDetailsViewModel = hiltViewModel(),
 ) {
-    val user = User(
-        id = 1,
-        name = "João da Silva",
-        username = "joaodasilva",
-        email = "joao@example.com",
-        phone = "123-456-7890",
-        website = "joao.dev",
-        address = Address(
-            street = "Rua A",
-            suite = "Apto 101",
-            city = "São Paulo",
-            zipcode = "01000-000",
-            geo = Geo(lat = "-23.5505", lng = "-46.6333")
-        ),
-        company = Company(
-            name = "Empresa Exemplo",
-            catchPhrase = "Inovando sempre",
-            bs = "Tecnologia disruptiva"
-        )
-    )
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
@@ -62,34 +43,42 @@ fun UserDetailsScreen(
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = "👤 ${user.name} (@${user.username})",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(text = "📧 Email: ${user.email}")
-            Text(text = "📱 Telefone: ${user.phone}")
-            Text(text = "🌐 Website: ${user.website}")
+        when (state) {
+            is UserDetailsState.Loading -> CircularProgressIndicator()
+            is UserDetailsState.Error -> Text((state as UserDetailsState.Error).message)
+            is UserDetailsState.Success -> {
+                val user = (state as UserDetailsState.Success).user
 
-            HorizontalDivider()
+                Column(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "👤 ${user.name} (@${user.username})",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Text(text = "📧 Email: ${user.email}")
+                    Text(text = "📱 Telefone: ${user.phone}")
+                    Text(text = "🌐 Website: ${user.website}")
 
-            Text(text = "🏠 Endereço", style = MaterialTheme.typography.titleMedium)
-            Text(text = "${user.address.street}, ${user.address.suite}")
-            Text(text = "${user.address.city} - ${user.address.zipcode}")
-            Text(text = "📍 Geo: ${user.address.geo.lat}, ${user.address.geo.lng}")
+                    HorizontalDivider()
 
-            HorizontalDivider()
+                    Text(text = "🏠 Endereço", style = MaterialTheme.typography.titleMedium)
+                    Text(text = "${user.address.street}, ${user.address.suite}")
+                    Text(text = "${user.address.city} - ${user.address.zipcode}")
+                    Text(text = "📍 Geo: ${user.address.geo.lat}, ${user.address.geo.lng}")
 
-            Text(text = "🏢 Empresa", style = MaterialTheme.typography.titleMedium)
-            Text(text = "Nome: ${user.company.name}")
-            Text(text = "Slogan: \"${user.company.catchPhrase}\"")
-            Text(text = "Área: ${user.company.bs}")
+                    HorizontalDivider()
+
+                    Text(text = "🏢 Empresa", style = MaterialTheme.typography.titleMedium)
+                    Text(text = "Nome: ${user.company.name}")
+                    Text(text = "Slogan: \"${user.company.catchPhrase}\"")
+                    Text(text = "Área: ${user.company.bs}")
+                }
+            }
         }
     }
 }

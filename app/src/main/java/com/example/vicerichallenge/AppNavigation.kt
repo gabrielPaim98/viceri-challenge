@@ -24,9 +24,8 @@ fun AppNavigation() {
         composable(
             route = NavRoutes.UserDetails.route,
             arguments = listOf(navArgument("userId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getInt("userId")!!
-            UserDetailsScreen(userId, navController)
+        ) {
+            UserDetailsScreen(navController)
         }
     }
 }
