@@ -18,6 +18,7 @@ import javax.inject.Inject
 
 data class UserListState(
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val users: List<User> = emptyList(),
     val currentPage: Int = 1,
@@ -35,8 +36,12 @@ class UserListViewModel @Inject constructor(
     private var searchJob: Job? = null
     private var getUsersJob: Job? = null
 
+    private var lastQuery: String = ""
+
     init {
-        fetchUsers(forceRefresh = false)
+        if (state.value.users.isEmpty()) {
+            fetchUsers(forceRefresh = false)
+        }
     }
 
     fun fetchUsers(forceRefresh: Boolean) {
@@ -61,6 +66,7 @@ class UserListViewModel @Inject constructor(
                             it.copy(
                                 users = allUsers,
                                 isLoading = false,
+                                isRefreshing = false,
                                 currentPage = currentPage + 1,
                                 endReached = allUsers.size >= totalItems,
                                 errorMessage = null
@@ -68,13 +74,19 @@ class UserListViewModel @Inject constructor(
                         }
                     }
 
-                    is Resource.Error -> _state.update { it.copy(errorMessage = (resource.message)) }
+                    is Resource.Error -> _state.update {
+                        it.copy(
+                            errorMessage = (resource.message),
+                            isRefreshing = false
+                        )
+                    }
                 }
             }
         }
     }
 
     fun refresh() {
+        _state.update { it.copy(isRefreshing = true) }
         fetchUsers(forceRefresh = true)
     }
 
@@ -83,6 +95,9 @@ class UserListViewModel @Inject constructor(
     }
 
     fun search(query: String) {
+        if (query == lastQuery) return
+        lastQuery = query
+
         if (query.isBlank()) {
             refresh()
             return

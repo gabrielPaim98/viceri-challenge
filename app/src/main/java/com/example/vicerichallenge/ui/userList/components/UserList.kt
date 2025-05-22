@@ -64,8 +64,7 @@ fun UserListItem(
         leadingContent = {
             Icon(
                 Icons.Filled.AccountCircle,
-                contentDescription = "Localized description", //todo: localize description
+                contentDescription = "Localized description",
             )
         })
 }
-
